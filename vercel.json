@@ -1,0 +1,17 @@
+{
+  "builds": [
+    {
+      "src": "kiosk_app/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "kiosk_app/wsgi.py"
+    }
+  ],
+  "env": {
+    "DJANGO_SETTINGS_MODULE": "kiosk_app.settings"
+  }
+} 
