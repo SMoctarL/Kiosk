@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kiosk - Solde du compte{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="page-title">Solde du compte</h1>
+    </div>
+</div>
+
+{% if messages %}
+<div class="row">
+    <div class="col-12">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card metallic-card">
+            <div class="metallic-header">
+                <h4 class="mb-0"><i class="fas fa-user me-2"></i>Informations client</h4>
+            </div>
+            <div class="metallic-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p><strong>ID:</strong> {{ customer.id }}</p>
+                        <p><strong>Nom:</strong> {{ customer.lastname }}</p>
+                        <p><strong>Prénom:</strong> {{ customer.firstname }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>CNI:</strong> {{ customer.cni }}</p>
+                        <p><strong>Téléphone:</strong> {{ customer.phone }}</p>
+                        <p>
+                            <strong>Type de compte:</strong> 
+                            <span class="badge 
+                                {% if customer.account.TYPE == 'WAVE' %}bg-info text-dark
+                                {% elif customer.account.TYPE == 'OM' %}bg-warning text-dark
+                                {% else %}bg-secondary
+                                {% endif %}">
+                                {{ customer.account.TYPE|default:"Standard" }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="alert alert-success text-center">
+                    <h3 class="mb-0">
+                        <i class="fas fa-money-bill-wave me-2"></i>
+                        Solde actuel: <strong>{{ customer.account.balance }} CFA</strong>
+                    </h3>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="d-grid">
+                            <a href="{% url 'make_deposit' customer.id %}" class="btn btn-success">
+                                <i class="fas fa-arrow-down me-2"></i>Effectuer un dépôt
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-grid">
+                            <a href="{% url 'make_withdraw' customer.id %}" class="btn btn-danger">
+                                <i class="fas fa-arrow-up me-2"></i>Effectuer un retrait
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="d-grid">
+                            <a href="{% url 'make_transfer' customer.id %}" class="btn btn-primary">
+                                <i class="fas fa-exchange-alt me-2"></i>Effectuer un transfert
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-grid">
+                            {% if customer.account.TYPE == 'OM' %}
+                            <a href="{% url 'make_payment' customer.id %}" class="btn btn-info">
+                                <i class="fas fa-shopping-cart me-2"></i>Effectuer un paiement
+                            </a>
+                            {% else %}
+                            <button class="btn btn-secondary" disabled>
+                                <i class="fas fa-shopping-cart me-2"></i>Paiement (OM uniquement)
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid mt-4">
+                    <a href="{% url 'customers_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Retour à la liste des clients
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animation d'entrée pour les cartes
+        const card = document.querySelector('.metallic-card');
+        if (card) {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        }
+        
+        // Animation pour l'affichage du solde
+        const balanceAlert = document.querySelector('.alert-success');
+        if (balanceAlert) {
+            balanceAlert.style.opacity = '0';
+            balanceAlert.style.transform = 'scale(0.9)';
+            balanceAlert.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            
+            setTimeout(() => {
+                balanceAlert.style.opacity = '1';
+                balanceAlert.style.transform = 'scale(1)';
+            }, 300);
+        }
+    });
+</script>
+{% endblock %} 

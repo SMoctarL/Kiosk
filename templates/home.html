@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Kiosk - Accueil{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 text-center mb-5">
+        <h1 class="page-title">Système de Gestion Multiservice</h1>
+        <p class="lead">Gérez vos comptes WAVE et Orange Money en toute simplicité</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 metallic-card">
+            <div class="metallic-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-wave-square me-2"></i>Compte WAVE
+                </h4>
+            </div>
+            <div class="metallic-body">
+                <p>Créez un compte Wave pour profiter des services suivants:</p>
+                <ul class="list-group list-group-flush mb-4" style="background: transparent;">
+                    <li class="list-group-item bg-transparent text-light border-secondary">
+                        <i class="fas fa-arrow-circle-down me-2"></i>Dépôt sans limite
+                    </li>
+                    <li class="list-group-item bg-transparent text-light border-secondary">
+                        <i class="fas fa-arrow-circle-up me-2"></i>Retrait limité à 100 000 CFA
+                    </li>
+                    <li class="list-group-item bg-transparent text-light border-secondary">
+                        <i class="fas fa-exchange-alt me-2"></i>Transfert limité à 500 000 CFA
+                    </li>
+                </ul>
+                <div class="text-center">
+                    <a href="{% url 'create_wave_account' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>Créer un compte WAVE
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 metallic-card">
+            <div class="metallic-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-mobile-alt me-2"></i>Compte ORANGE MONEY
+                </h4>
+            </div>
+            <div class="metallic-body">
+                <p>Créez un compte Orange Money pour profiter des services suivants:</p>
+                <ul class="list-group list-group-flush mb-4" style="background: transparent;">
+                    <li class="list-group-item bg-transparent text-light border-secondary">
+                        <i class="fas fa-arrow-circle-down me-2"></i>Dépôt sans limite
+                    </li>
+                    <li class="list-group-item bg-transparent text-light border-secondary">
+                        <i class="fas fa-arrow-circle-up me-2"></i>Retrait limité à 200 000 CFA
+                    </li>
+                    <li class="list-group-item bg-transparent text-light border-secondary">
+                        <i class="fas fa-exchange-alt me-2"></i>Transfert limité à 1 000 000 CFA
+                    </li>
+                    <li class="list-group-item bg-transparent text-light border-secondary">
+                        <i class="fas fa-shopping-cart me-2"></i>Paiement limité à 500 000 CFA
+                    </li>
+                </ul>
+                <div class="text-center">
+                    <a href="{% url 'create_om_account' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>Créer un compte OM
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4 mb-4">
+        <div class="card metallic-card">
+            <div class="metallic-header">
+                <h5 class="mb-0"><i class="fas fa-users me-2"></i>Clients</h5>
+            </div>
+            <div class="metallic-body">
+                <p>Consultez et gérez la liste de tous vos clients.</p>
+                <a href="{% url 'customers_list' %}" class="btn btn-info w-100">
+                    <i class="fas fa-list me-2"></i>Voir les clients
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card metallic-card">
+            <div class="metallic-header">
+                <h5 class="mb-0"><i class="fas fa-credit-card me-2"></i>Comptes</h5>
+            </div>
+            <div class="metallic-body">
+                <p>Consultez et gérez tous les comptes clients.</p>
+                <a href="{% url 'accounts_list' %}" class="btn btn-info w-100">
+                    <i class="fas fa-list me-2"></i>Voir les comptes
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card metallic-card">
+            <div class="metallic-header">
+                <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Transactions</h5>
+            </div>
+            <div class="metallic-body">
+                <p>Consultez l'historique de toutes les transactions.</p>
+                <a href="{% url 'transactions_list' %}" class="btn btn-info w-100">
+                    <i class="fas fa-list me-2"></i>Voir les transactions
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animation d'entrée pour les cartes
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.metallic-card');
+        
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+    });
+</script>
+{% endblock %} 

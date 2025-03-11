@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Kiosk - {{ action }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="page-title">{{ action }}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mx-auto">
+        <div class="card metallic-card">
+            <div class="metallic-header">
+                <h4 class="mb-0">
+                    {% if action == 'Dépôt' %}
+                        <i class="fas fa-arrow-circle-down me-2"></i>
+                    {% elif action == 'Retrait' %}
+                        <i class="fas fa-arrow-circle-up me-2"></i>
+                    {% elif action == 'Paiement' %}
+                        <i class="fas fa-shopping-cart me-2"></i>
+                    {% endif %}
+                    {{ action }} sur le compte
+                </h4>
+            </div>
+            <div class="metallic-body">
+                <div class="card mb-4" style="background-color: #383838;">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Information du client</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>ID :</strong> {{ customer.id }}</p>
+                                <p><strong>Nom :</strong> {{ customer.lastname }}</p>
+                                <p><strong>Prénom :</strong> {{ customer.firstname }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>CNI :</strong> {{ customer.cni }}</p>
+                                <p><strong>Téléphone :</strong> {{ customer.phone }}</p>
+                                <p><strong>Type de compte :</strong> 
+                                    {% if customer.account.TYPE == 'WAVE' %}
+                                        <span class="badge bg-info">WAVE</span>
+                                    {% elif customer.account.TYPE == 'OM' %}
+                                        <span class="badge bg-warning text-dark">OM</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Standard</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="card mb-4" style="background-color: #383838;">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Authentification</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ auth_form|crispy }}
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4" style="background-color: #383838;">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Détails du {{ action }}</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ amount_form|crispy }}
+                            
+                            {% if action == 'Retrait' and customer.account.TYPE == 'WAVE' %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>Limite de retrait WAVE : {{ customer.account.WITHDRAW_LIMIT }} CFA
+                                </div>
+                            {% elif action == 'Retrait' and customer.account.TYPE == 'OM' %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>Limite de retrait OM : {{ customer.account.WITHDRAW_LIMIT }} CFA
+                                </div>
+                            {% elif action == 'Paiement' and customer.account.TYPE == 'OM' %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>Limite de paiement OM : {{ customer.account.PAYMENT_LIMIT }} CFA
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            {% if action == 'Dépôt' %}
+                                <i class="fas fa-arrow-circle-down me-2"></i>
+                            {% elif action == 'Retrait' %}
+                                <i class="fas fa-arrow-circle-up me-2"></i>
+                            {% elif action == 'Paiement' %}
+                                <i class="fas fa-shopping-cart me-2"></i>
+                            {% endif %}
+                            {{ submit_label }}
+                        </button>
+                        <a href="{% url 'customers_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à la liste des clients
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.card');
+        
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+        
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    });
+</script>
+{% endblock %} 

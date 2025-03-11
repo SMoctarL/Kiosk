@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Kiosk - Transfert{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="page-title">Transfert</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card metallic-card">
+            <div class="metallic-header">
+                <h4 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Transfert depuis le compte</h4>
+            </div>
+            <div class="metallic-body">
+                <div class="card mb-4" style="background-color: #383838;">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Expéditeur</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>ID :</strong> {{ customer.id }}</p>
+                                <p><strong>Nom :</strong> {{ customer.lastname }}</p>
+                                <p><strong>Prénom :</strong> {{ customer.firstname }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Numéro de compte :</strong> {{ customer.account.account_number }}</p>
+                                <p><strong>Type de compte :</strong> 
+                                    {% if customer.account.TYPE == 'WAVE' %}
+                                        <span class="badge bg-info">WAVE</span>
+                                    {% elif customer.account.TYPE == 'OM' %}
+                                        <span class="badge bg-warning text-dark">OM</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Standard</span>
+                                    {% endif %}
+                                </p>
+                                <p><strong>Solde actuel :</strong> {{ customer.account.balance }} CFA</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="card mb-4" style="background-color: #383838;">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Authentification</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ auth_form|crispy }}
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4" style="background-color: #383838;">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Destinataire et montant</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ transfer_form|crispy }}
+                            
+                            {% if customer.account.TYPE == 'WAVE' %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>Limite de transfert WAVE : {{ customer.account.TRANSFER_LIMIT }} CFA
+                                </div>
+                            {% elif customer.account.TYPE == 'OM' %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>Limite de transfert OM : {{ customer.account.TRANSFER_LIMIT }} CFA
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-exchange-alt me-2"></i>{{ submit_label }}
+                        </button>
+                        <a href="{% url 'customers_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à la liste des clients
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.card');
+        
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+        
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    });
+</script>
+{% endblock %} 

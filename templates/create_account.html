@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Kiosk - Créer un compte {{ account_type }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="page-title">Créer un compte {{ account_type }}</h1>
+    </div>
+</div>
+
+<!-- Affichage des erreurs générales -->
+{% if customer_form.non_field_errors or account_form.non_field_errors %}
+<div class="alert alert-danger">
+    {% for error in customer_form.non_field_errors %}
+        <p>{{ error }}</p>
+    {% endfor %}
+    {% for error in account_form.non_field_errors %}
+        <p>{{ error }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card metallic-card">
+            <div class="metallic-header">
+                <h4 class="mb-0">
+                    {% if account_type == 'WAVE' %}
+                        <i class="fas fa-wave-square me-2"></i>Nouveau compte WAVE
+                    {% else %}
+                        <i class="fas fa-mobile-alt me-2"></i>Nouveau compte ORANGE MONEY
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="metallic-body">
+                <div class="card mb-4" style="background-color: #383838;">
+                    <div class="card-header">
+                        <h5 class="mb-0">Limites du compte {{ account_type }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush" style="background: transparent;">
+                            <li class="list-group-item bg-transparent text-light border-secondary">
+                                <i class="fas fa-arrow-circle-down me-2"></i>Dépôt : Sans limite
+                            </li>
+                            <li class="list-group-item bg-transparent text-light border-secondary">
+                                <i class="fas fa-arrow-circle-up me-2"></i>Retrait : Limité à {{ withdraw_limit }} CFA
+                            </li>
+                            <li class="list-group-item bg-transparent text-light border-secondary">
+                                <i class="fas fa-exchange-alt me-2"></i>Transfert : Limité à {{ transfer_limit }} CFA
+                            </li>
+                            {% if account_type == 'OM' %}
+                            <li class="list-group-item bg-transparent text-light border-secondary">
+                                <i class="fas fa-shopping-cart me-2"></i>Paiement : Limité à {{ payment_limit }} CFA
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="card mb-4" style="background-color: #383838;">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-user me-2"></i>Informations du client</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ customer_form.firstname|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ customer_form.lastname|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ customer_form.cni|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ customer_form.phone|as_crispy_field }}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                {{ customer_form.address|as_crispy_field }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4" style="background-color: #383838;">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Informations du compte</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ account_form.username|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ account_form.code_pin|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check-circle me-2"></i>Créer le compte {{ account_type }}
+                        </button>
+                        <a href="{% url 'home' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à l'accueil
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.card');
+        
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+        
+        // Validation personnalisée des formulaires
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+        
+        console.log("Formulaire chargé. En cas d'erreur, vérifiez la console JavaScript.");
+        
+        // Mise en évidence des champs en erreur
+        const errorFields = document.querySelectorAll('.is-invalid');
+        errorFields.forEach(field => {
+            field.addEventListener('focus', function() {
+                this.style.boxShadow = '0 0 0 0.25rem rgba(220, 53, 69, 0.4)';
+            });
+            field.addEventListener('blur', function() {
+                this.style.boxShadow = '';
+            });
+        });
+    });
+</script>
+{% endblock %} 

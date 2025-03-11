@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Kiosk - {{ operation_title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="page-title">{{ operation_title }}</h1>
+    </div>
+</div>
+
+{% if messages %}
+<div class="row">
+    <div class="col-12">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card metallic-card">
+            <div class="metallic-header">
+                <h4 class="mb-0"><i class="fas fa-user me-2"></i>Informations client</h4>
+            </div>
+            <div class="metallic-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p><strong>ID:</strong> {{ customer.id }}</p>
+                        <p><strong>Nom:</strong> {{ customer.lastname }}</p>
+                        <p><strong>Prénom:</strong> {{ customer.firstname }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>CNI:</strong> {{ customer.cni }}</p>
+                        <p><strong>Téléphone:</strong> {{ customer.phone }}</p>
+                        <p>
+                            <strong>Type de compte:</strong> 
+                            <span class="badge 
+                                {% if customer.account.TYPE == 'WAVE' %}bg-info text-dark
+                                {% elif customer.account.TYPE == 'OM' %}bg-warning text-dark
+                                {% else %}bg-secondary
+                                {% endif %}">
+                                {{ customer.account.TYPE|default:"Standard" }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                
+                {% if limit != 'Non définie' %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>Limite pour cette opération: {{ limit }} CFA
+                </div>
+                {% endif %}
+                
+                <form method="post" id="operationForm">
+                    {% csrf_token %}
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Authentification</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ auth_form|crispy }}
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">
+                                {% if operation == 'deposit' %}
+                                <i class="fas fa-arrow-down me-2"></i>
+                                {% elif operation == 'withdraw' %}
+                                <i class="fas fa-arrow-up me-2"></i>
+                                {% elif operation == 'payment' %}
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                {% endif %}
+                                Détails de l'opération
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {{ amount_form|crispy }}
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            {% if operation == 'deposit' %}
+                            <i class="fas fa-arrow-down me-2"></i>Effectuer le dépôt
+                            {% elif operation == 'withdraw' %}
+                            <i class="fas fa-arrow-up me-2"></i>Effectuer le retrait
+                            {% elif operation == 'payment' %}
+                            <i class="fas fa-shopping-cart me-2"></i>Effectuer le paiement
+                            {% endif %}
+                        </button>
+                        <a href="{% url 'customers_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à la liste des clients
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validation du formulaire
+        const form = document.getElementById('operationForm');
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+            
+            // Vérification des champs d'authentification
+            const username = document.querySelector('input[name="username"]');
+            const codePin = document.querySelector('input[name="code_pin"]');
+            
+            if (!username.value.trim()) {
+                isValid = false;
+                username.classList.add('is-invalid');
+            } else {
+                username.classList.remove('is-invalid');
+            }
+            
+            if (!codePin.value.trim() || codePin.value.length !== 4) {
+                isValid = false;
+                codePin.classList.add('is-invalid');
+            } else {
+                codePin.classList.remove('is-invalid');
+            }
+            
+            // Vérification du montant
+            const amount = document.querySelector('input[name="amount"]');
+            if (!amount.value.trim() || parseInt(amount.value) <= 0) {
+                isValid = false;
+                amount.classList.add('is-invalid');
+            } else {
+                amount.classList.remove('is-invalid');
+            }
+            
+            if (!isValid) {
+                event.preventDefault();
+                console.log("Formulaire invalide");
+            } else {
+                console.log("Formulaire valide, soumission en cours...");
+            }
+        });
+        
+        // Animation d'entrée pour les cartes
+        const cards = document.querySelectorAll('.card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 + (index * 100));
+        });
+    });
+</script>
+{% endblock %} 

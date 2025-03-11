@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kiosk - Liste des comptes{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="page-title">Liste des comptes</h1>
+    </div>
+</div>
+
+{% if messages %}
+<div class="row">
+    <div class="col-12">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card metallic-card">
+            <div class="metallic-header">
+                <h4 class="mb-0"><i class="fas fa-credit-card me-2"></i>Comptes enregistrés</h4>
+            </div>
+            <div class="metallic-body">
+                {% if accounts %}
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover" style="--bs-table-hover-color: #fff;">
+                        <thead>
+                            <tr class="text-white">
+                                <th>N° Compte</th>
+                                <th>Type</th>
+                                <th>Client</th>
+                                <th>ID Client</th>
+                                <th>Solde</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in accounts %}
+                            <tr class="text-white">
+                                <td>{{ account.account_number }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if account.TYPE == 'WAVE' %}bg-info text-dark fw-bold
+                                        {% elif account.TYPE == 'OM' %}bg-warning text-dark fw-bold
+                                        {% else %}bg-light text-dark fw-bold
+                                        {% endif %}">
+                                        {{ account.TYPE|default:"Standard" }}
+                                    </span>
+                                </td>
+                                <td>{{ account.customer.firstname }} {{ account.customer.lastname }}</td>
+                                <td>{{ account.customer.id }}</td>
+                                <td>{{ account.balance }} CFA</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>Aucun compte n'a été créé pour le moment.
+                </div>
+                <div class="text-center py-4">
+                    <p class="text-white">Commencez par créer un compte client :</p>
+                    <div class="mt-3">
+                        <a href="{% url 'create_wave_account' %}" class="btn btn-info m-2 text-dark fw-bold">
+                            <i class="fas fa-wave-square me-2"></i>Créer un compte WAVE
+                        </a>
+                        <a href="{% url 'create_om_account' %}" class="btn btn-warning m-2 text-dark fw-bold">
+                            <i class="fas fa-mobile-alt me-2"></i>Créer un compte ORANGE MONEY
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="mt-4">
+                    <a href="{% url 'home' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Retour à l'accueil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Page accounts_list chargée");
+        
+        const card = document.querySelector('.metallic-card');
+        if (card) {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        }
+        
+        const table = document.querySelector('table');
+        if (table) {
+            const rowCount = table.querySelectorAll('tbody tr').length;
+            console.log(`Nombre de comptes chargés: ${rowCount}`);
+        } else {
+            console.log("Aucun tableau trouvé - probablement aucun compte");
+        }
+    });
+</script>
+{% endblock %} 
